@@ -19,7 +19,7 @@ export default class TeamModel implements ITeamModel {
       teamName,
     }));
   }
-  
+
   async findById(id: number): Promise<ITeam | null> {
     const team = await this.model.findByPk(id);
     return team ? { id, teamName: team.teamName } : null;
@@ -36,4 +36,4 @@ export default class TeamModel implements ITeamModel {
     await this.model.destroy({ where: { id } });
     return id;
   }
-};
+}

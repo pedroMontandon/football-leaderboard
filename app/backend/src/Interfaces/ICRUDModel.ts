@@ -15,4 +15,5 @@ export interface ICRUDModelDeleter {
   delete(id: number): Promise<number>;
 }
 
-export interface ICRUDModel<T> extends ICRUDModelCreator<T>, ICRUDModelReader<T>, ICRUDModelUpdater<T>, ICRUDModelDeleter {}
+export interface ICRUDModel<T> extends ICRUDModelCreator<T>,
+  ICRUDModelReader<T>, ICRUDModelUpdater<T>, ICRUDModelDeleter {}
