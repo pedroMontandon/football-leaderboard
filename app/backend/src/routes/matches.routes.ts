@@ -11,5 +11,16 @@ router.patch(
   Validations.validateToken,
   (req: Request, res: Response) => matchController.finishMatch(req, res),
 );
+router.patch(
+  '/:id',
+  Validations.validateToken,
+  (req: Request, res: Response) => matchController.score(req, res),
+);
+router.post(
+  '/',
+  Validations.validateToken,
+  Validations.validateMatch,
+  (req: Request, res: Response) => matchController.startMatch(req, res),
+);
 
 export default router;

@@ -1,10 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
 import JwtUtils from '../utils/JwtUtils';
+import TeamService from '../services/TeamService';
 
 export default class Validations {
   private static passwordLength = 6;
   private static emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
+  private static teamService = new TeamService();
   static validateLogin(req: Request, res: Response, next: NextFunction) {
     const { email, password } = req.body as { email: string; password: string };
     if (!email || !password) {
@@ -28,5 +30,19 @@ export default class Validations {
     } catch (error) {
       return res.status(401).json({ message: 'Token must be a valid token' });
     }
+  }
+
+  static async validateMatch(req: Request, res: Response, next: NextFunction) {
+    const { homeTeamId, awayTeamId } = req.body;
+    if (homeTeamId === awayTeamId) {
+      return res.status(422)
+        .json({ message: 'It is not possible to create a match with two equal teams' });
+    }
+    const foundHomeTeam = (await Validations.teamService.getTeamById(homeTeamId));
+    const foundAwayTeam = await Validations.teamService.getTeamById(awayTeamId);
+    if (foundHomeTeam.status !== 'SUCCESSFUL' || foundAwayTeam.status !== 'SUCCESSFUL') {
+      return res.status(404).json({ message: 'There is no team with such id!' });
+    }
+    return next();
   }
 }
