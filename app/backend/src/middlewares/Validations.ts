@@ -17,16 +17,16 @@ export default class Validations {
   }
 
   static validateToken(req: Request, res: Response, next: NextFunction) {
-    const { authorization } = req.headers;
-    if (!authorization) {
-      return res.status(401).json({ message: 'Token not found' });
-    }
-    const jwtUtils = new JwtUtils();
     try {
+      const { authorization } = req.headers;
+      if (!authorization) {
+        return res.status(401).json({ message: 'Token not found' });
+      }
+      const jwtUtils = new JwtUtils();
       jwtUtils.verify(authorization);
+      return next();
     } catch (error) {
       return res.status(401).json({ message: 'Token must be a valid token' });
     }
-    return next();
   }
 }

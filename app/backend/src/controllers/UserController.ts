@@ -12,8 +12,7 @@ export default class UserController {
 
   public async getUserRole(req: Request, res: Response): Promise<Response> {
     const { authorization } = req.headers;
-    if (!authorization) return res.status(400).json({ message: 'TIRA ISSO DAQUI' });
-    const { status, data } = await this.userService.getUserRole(authorization);
+    const { status, data } = await this.userService.getUserRole(authorization as string);
     return res.status(mapStatusHTTP(status)).json(data);
   }
 }
