@@ -10,7 +10,7 @@ export default class MatchService {
     return { status: 'SUCCESSFUL', data };
   }
 
-  async getOngoingMatches(query: boolean): Promise<ServiceResponse<IMatch[]>> {
+  async getMatchesByProgress(query: boolean): Promise<ServiceResponse<IMatch[]>> {
     const data = await this.matchModel.findByQuery('inProgress', query);
     return { status: 'SUCCESSFUL', data };
   }
