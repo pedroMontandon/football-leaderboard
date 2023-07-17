@@ -51,6 +51,24 @@ function sortBoard(board: IPartialResults[]): IPartialResults[] {
   });
 }
 
+function sumGames(home: IPartialResults, visitor: IPartialResults): IPartialResults {
+  const untreatedResult = {
+    name: home.name,
+    totalPoints: home.totalPoints + visitor.totalPoints,
+    totalGames: home.totalGames + visitor.totalGames,
+    totalVictories: home.totalVictories + visitor.totalVictories,
+    totalDraws: home.totalDraws + visitor.totalDraws,
+    totalLosses: home.totalLosses + visitor.totalLosses,
+    goalsFavor: home.goalsFavor + visitor.goalsFavor,
+    goalsOwn: home.goalsOwn + visitor.goalsOwn,
+  };
+  return {
+    ...untreatedResult,
+    goalsBalance: untreatedResult.goalsFavor - untreatedResult.goalsOwn,
+    efficiency: ((untreatedResult.totalPoints / (untreatedResult.totalGames * 3)) * 100).toFixed(2),
+  };
+}
+
 export function calculateHomePoints(games: IMatch[]): IPartialResults[] {
   const rawTable = makeRawTable(games, true);
   const updatedTable = games.reduce((acc, cur) => {
@@ -71,7 +89,20 @@ export function calculateAwayPoints(games: IMatch[]): IPartialResults[] {
   return sortBoard(updatedTable);
 }
 
+export function calculateTotalPoints(games: IMatch[]): IPartialResults[] {
+  const rawTable = makeRawTable(games, false);
+  const homeTable = calculateHomePoints(games);
+  const awayTable = calculateAwayPoints(games);
+  const updatedTable = homeTable.reduce((acc, cur, i) => {
+    const visitor = awayTable.find(({ name }) => name === cur.name);
+    acc[i] = sumGames(cur, visitor as IPartialResults);
+    return acc;
+  }, rawTable);
+  return sortBoard(updatedTable);
+}
+
 export default {
   calculateHomePoints,
   calculateAwayPoints,
+  calculateTotalPoints,
 };

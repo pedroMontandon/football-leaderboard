@@ -8,5 +8,7 @@ router.get('/home', (req: Request, res: Response) =>
   leaderboardController.homeLeaderboard(req, res));
 router.get('/away', (req: Request, res: Response) =>
   leaderboardController.awayLeaderboard(req, res));
+router.get('/', (req: Request, res: Response) =>
+  leaderboardController.wholeLeaderboard(req, res));
 
 export default router;

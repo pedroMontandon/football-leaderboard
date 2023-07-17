@@ -1,7 +1,8 @@
 import MatchModel from '../models/MatchModel';
 import { ServiceResponse } from '../Interfaces/ServiceResponse';
 import { IMatch } from '../Interfaces/Matches/IMatch';
-import { calculateHomePoints, calculateAwayPoints } from '../utils/LeaderboardUtils';
+import { calculateHomePoints, calculateAwayPoints,
+  calculateTotalPoints } from '../utils/LeaderboardUtils';
 import { IPartialResults } from '../Interfaces/Leaderboard/IPartialResults';
 
 export default class LeaderboardService {
@@ -22,7 +23,7 @@ export default class LeaderboardService {
       const data = calculateAwayPoints(finishedGames);
       return { status: 'SUCCESSFUL', data };
     }
-    const data = calculateHomePoints(finishedGames);
+    const data = calculateTotalPoints(finishedGames);
     return { status: 'SUCCESSFUL', data };
   }
 }

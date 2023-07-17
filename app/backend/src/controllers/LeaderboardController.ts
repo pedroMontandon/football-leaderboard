@@ -14,4 +14,9 @@ export default class LeaderboardController {
     const { status, data } = await this.leaderboardService.leaderboard('away');
     return res.status(mapStatusHTTP(status)).json(data);
   }
+
+  async wholeLeaderboard(_req: Request, res: Response): Promise<Response> {
+    const { status, data } = await this.leaderboardService.leaderboard('general');
+    return res.status(mapStatusHTTP(status)).json(data);
+  }
 }
