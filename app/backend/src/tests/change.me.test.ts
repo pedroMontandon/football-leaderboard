@@ -117,22 +117,35 @@ describe('Testing user route', function () {
     expect(res.status).to.be.equal(401);
     expect(res.body).to.be.deep.equal({ message: 'Token must be a valid token' });
   })
-  // it() falta o happy case. Como mockar a instância da classe?
+  it('should return a role in "/login/role"', async function() {
+    const builtUser = SequelizeUser.build({ id: 1, email: 'valid@email.com', password: '1234567', role: 'user', username: 'valid' });
+    sinon.stub(JwtUtils.prototype, 'verify').returns({ id: 1, email: 'valid@email.com' });
+    sinon.stub(SequelizeUser, 'findOne').resolves(builtUser);
+    const res = await chai.request(app).get('/login/role').set('Authorization', 'valid-token');
+    expect(res.status).to.be.equal(200);
+    expect(res.body).to.be.deep.eq({ role: 'user' });
+  })
 })
 
 describe ('Testing matches route', function () {
   beforeEach(function () { sinon.restore()})
-  it('should return all matches in progress in "/matches"', async function () {
-    const builtTeam = SequelizeMatch.build({ id: 1, homeTeamGoals: 1, awayTeamGoals: 2, homeTeamId: 1, awayTeamId: 2, inProgress: false });
+  it('should return all matches in progress in "/matches?inProgress=true"', async function () {
     sinon.stub(SequelizeMatch, 'findAll').resolves([]);
     const res = await chai.request(app).get('/matches?inProgress=true');
     expect(res).to.have.status(200)
     expect(res.body).to.be.deep.eq([])
   })
-  it('should return all matches finished matches in "/matches"', async function () {
+  it('should return all matches finished matches in "/matches?inProgress=false"', async function () {
     const builtTeam = SequelizeMatch.build({ id: 1, homeTeamGoals: 1, awayTeamGoals: 2, homeTeamId: 1, awayTeamId: 2, inProgress: false });
     sinon.stub(SequelizeMatch, 'findAll').resolves([builtTeam]);
     const res = await chai.request(app).get('/matches?inProgress=false');
+    expect(res).to.have.status(200)
+    expect(res.body).to.be.deep.eq([builtTeam.dataValues])
+  })
+  it('should return all matches finished matches in "/matches"', async function () {
+    const builtTeam = SequelizeMatch.build({ id: 1, homeTeamGoals: 1, awayTeamGoals: 2, homeTeamId: 1, awayTeamId: 2, inProgress: false });
+    sinon.stub(SequelizeMatch, 'findAll').resolves([builtTeam]);
+    const res = await chai.request(app).get('/matches');
     expect(res).to.have.status(200)
     expect(res.body).to.be.deep.eq([builtTeam.dataValues])
   })
@@ -170,7 +183,7 @@ describe ('Testing matches route', function () {
     sinon.stub(SequelizeTeam, 'findByPk').resolves(builtTeam);
     sinon.stub(SequelizeMatch, 'create').resolves(builtMatch);
     const res = await chai.request(app).post('/matches').set('authorization', 'token').send({ homeTeamId: 1, awayTeamId: 2 });
-    // expect(res).to.have.status(201);
+    expect(res).to.have.status(201);
     expect(res.body).to.be.deep.eq(builtMatch.dataValues);
   })
 })
@@ -183,22 +196,22 @@ describe ('Testing leaderboard route', function () {
     sinon.stub(SequelizeMatch, 'findAll').resolves([builtTeam]);
     const res = await chai.request(app).get('/leaderboard')
     expect(res).to.have.status(200)
-    expect(res.body).to.be.deep.eq({ totalGames: 1, totalVictories: 1, totalDraws: 0, totalLosses: 0, totalPoints: 3 })
+    expect(res.body).to.be.deep.eq([{ totalGames: 2, totalVictories: 1, totalDraws: 0, totalLosses: 1, totalPoints: 3, goalsFavor: 3, goalsOwn: 3, goalsBalance: 0, efficiency: '50.00' }])
   })
   it('should return just home games leaderboard in "/leaderboard/home"', async function () {
-    const builtTeam = SequelizeMatch.build({ id: 1, homeTeamGoals: 1, awayTeamGoals: 2,
+    const builtTeam = SequelizeMatch.build({ id: 1, homeTeamGoals: 1, awayTeamGoals: 1,
        homeTeamId: 1, awayTeamId: 2, inProgress: false });
     sinon.stub(SequelizeMatch, 'findAll').resolves([builtTeam]);
     const res = await chai.request(app).get('/leaderboard/home')
     expect(res).to.have.status(200)
-    expect(res.body).to.be.deep.eq(builtTeam)
+    expect(res.body).to.be.deep.eq([{ totalGames: 1, totalVictories: 0, totalDraws: 1, totalLosses: 0, totalPoints: 1, goalsFavor: 1, goalsOwn: 1, goalsBalance: 0, efficiency: '33.33' }])
   })
   it('should return just away games leaderboard in "/leaderboard/home"', async function () {
-    const builtTeam = SequelizeMatch.build({ id: 1, homeTeamGoals: 1, awayTeamGoals: 2,
+    const builtTeam = SequelizeMatch.build({ id: 1, homeTeamGoals: 1, awayTeamGoals: 1,
        homeTeamId: 1, awayTeamId: 2, inProgress: false });
     sinon.stub(SequelizeMatch, 'findAll').resolves([builtTeam]);
     const res = await chai.request(app).get('/leaderboard/away')
     expect(res).to.have.status(200)
-    expect(res.body).to.be.deep.eq(builtTeam)
+    expect(res.body).to.be.deep.eq([{ totalGames: 1, totalVictories: 0, totalDraws: 1, totalLosses: 0, totalPoints: 1, goalsFavor: 1, goalsOwn: 1, goalsBalance: 0, efficiency: '33.33' }])
   })
 })
