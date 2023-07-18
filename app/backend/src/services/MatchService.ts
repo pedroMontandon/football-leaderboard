@@ -22,13 +22,12 @@ export default class MatchService {
   }
 
   async finishMatch(id: number): Promise<ServiceResponse<{ message: 'Finished' }>> {
-    const data = await this.matchModel.update(id, { inProgress: false });
-    if (!data) return { status: 'NOT_FOUND', data: { message: 'Match not found' } };
+    await this.matchModel.update(id, { inProgress: false });
     return { status: 'SUCCESSFUL', data: { message: 'Finished' } };
   }
 
   async updateMatch(id: number, newData: matchGoals): Promise<ServiceResponse<IMatch>> {
-    if (!this.getTeamById(id)) {
+    if (!await this.getTeamById(id)) {
       return { status: 'NOT_FOUND', data: { message: 'There is no team with such id!' } };
     }
     const data = await this.matchModel.update(id, newData);
